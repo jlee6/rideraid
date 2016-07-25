@@ -15,11 +15,13 @@ import com.jnj.android.rideraid.R;
 import com.jnj.android.rideraid.RiderAidApplication;
 import com.jnj.android.rideraid.ant.AntBikeDevice;
 import com.jnj.android.rideraid.presenter.PositionPresenter;
+import com.jnj.android.rideraid.presenter.PresenterActions;
+import com.jnj.android.rideraid.presenter.TelemetryPresenter;
+import com.jnj.android.rideraid.presenter.TimePresenter;
 import com.jnj.android.rideraid.presenter.module.Position;
 import com.jnj.android.rideraid.presenter.module.TeleSensor;
 import com.jnj.android.rideraid.presenter.module.Tick;
-import com.jnj.android.rideraid.presenter.TelemetryPresenter;
-import com.jnj.android.rideraid.presenter.TimePresenter;
+import com.jnj.android.rideraid.util.WindowsUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -42,10 +44,8 @@ public class Telemetry extends Fragment
 
     Unbinder unbinder;
 
+    private PresenterActions[] presenters;
     private SimpleDateFormat formatter;
-    private TimePresenter timePresenter;
-    private PositionPresenter positionPresenter;
-    private TelemetryPresenter telemetryPresenter;
 
     AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
 
@@ -59,9 +59,10 @@ public class Telemetry extends Fragment
         formatter = new SimpleDateFormat("HH:mm:ss");
         formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        timePresenter = new Tick(this);
-        telemetryPresenter = new TeleSensor(this, device);
-        positionPresenter = new Position(getContext(), this);
+        presenters = new PresenterActions[]{
+                new Tick(this),
+                new TeleSensor(this, device),
+                new Position(getContext(), this)};
 
         setHasOptionsMenu(true);
     }
@@ -97,21 +98,28 @@ public class Telemetry extends Fragment
 
         inflater.inflate(R.menu.menu_main, menu);
 
-        menu.findItem(R.id.action_record).setVisible(!timePresenter.isActive());
-        menu.findItem(R.id.action_stop).setVisible(timePresenter.isActive());
+        PresenterActions p = presenters[0];
+        menu.findItem(R.id.action_record).setVisible(!p.isActive());
+        menu.findItem(R.id.action_stop).setVisible(p.isActive());
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_record:
-                timePresenter.start();
-                telemetryPresenter.start();
+                for (PresenterActions p : presenters) {
+                    p.start();
+                }
+
+                WindowsUtils.lockScreenDim(getActivity().getWindow(), true);
                 getActivity().invalidateOptionsMenu();
                 return true;
             case R.id.action_stop:
-                timePresenter.stop();
-                telemetryPresenter.stop();
+                for (PresenterActions p : presenters) {
+                    p.stop();
+                }
+
+                WindowsUtils.lockScreenDim(getActivity().getWindow(), false);
                 getActivity().invalidateOptionsMenu();
                 return true;
         }
