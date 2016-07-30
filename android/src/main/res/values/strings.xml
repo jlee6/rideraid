@@ -14,6 +14,8 @@
 
     <string name="title_distance">Distance</string>
     <string name="default_distance">000</string>
+    <string name="unit_km">km</string>
+    <string name="unit_mile">miles</string>
 
     <string name="title_time">Elapsed Time</string>
     <string name="default_elapsed_time">00:00:00</string>
