@@ -5,7 +5,34 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+@SuppressWarnings("WeakerAccess")
 public class Tire {
+    // num should be divided by 100000
+    public static final long CIRCUMFERENCE_MM_20 = 207973;
+    public static final long CIRCUMFERENCE_MM_23 = 209858;
+    public static final long CIRCUMFERENCE_MM_25 = 211115;
+    public static final long CIRCUMFERENCE_MM_28 = 213000;
+    public static final long CIRCUMFERENCE_MM_32 = 215513;
+    public static final long CIRCUMFERENCE_MM_35 = 217398;
+    public static final long CIRCUMFERENCE_MM_38 = 219283;
+    public static final long CIRCUMFERENCE_MM_44 = 223053;
+    public static final long CIRCUMFERENCE_MM_50 = 226823;
+    public static final long CIRCUMFERENCE_MM_56 = 230593;
+    // num should be divided by 100
+    public static final long CIRCUMFERENCE_IN_100 = 211366;
+    public static final long CIRCUMFERENCE_IN_125 = 215356;
+    public static final long CIRCUMFERENCE_IN_150 = 219346;
+    public static final long CIRCUMFERENCE_IN_175 = 223336;
+    public static final long CIRCUMFERENCE_IN_195 = 226509;
+    public static final long CIRCUMFERENCE_IN_200 = 227326;
+    public static final long CIRCUMFERENCE_IN_210 = 228922;
+    public static final long CIRCUMFERENCE_IN_2125 = 229336;
+    public static final long CIRCUMFERENCE_IN_220 = 230518;
+    public static final long CIRCUMFERENCE_IN_225 = 231315;
+    public static final long CIRCUMFERENCE_IN_230 = 232113;
+    public static final long CIRCUMFERENCE_IN_235 = 232911;
+    public static final long CIRCUMFERENCE_IN_240 = 233540;
+
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             CIRCUMFERENCE_MM_20,
@@ -18,7 +45,8 @@ public class Tire {
             CIRCUMFERENCE_MM_44,
             CIRCUMFERENCE_MM_50,
             CIRCUMFERENCE_MM_56})
-    public @interface TireCircumferenceMM {}
+    public @interface TireCircumferenceMM {
+    }
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
@@ -35,34 +63,8 @@ public class Tire {
             CIRCUMFERENCE_IN_230,
             CIRCUMFERENCE_IN_235,
             CIRCUMFERENCE_IN_240})
-    public @interface TireCircumferenceIN {}
-
-    // num should be divided by 100000
-    public static final long CIRCUMFERENCE_MM_20 = 207973;
-    public static final long CIRCUMFERENCE_MM_23 = 209858;
-    public static final long CIRCUMFERENCE_MM_25 = 211115;
-    public static final long CIRCUMFERENCE_MM_28 = 213000;
-    public static final long CIRCUMFERENCE_MM_32 = 215513;
-    public static final long CIRCUMFERENCE_MM_35 = 217398;
-    public static final long CIRCUMFERENCE_MM_38 = 219283;
-    public static final long CIRCUMFERENCE_MM_44 = 223053;
-    public static final long CIRCUMFERENCE_MM_50 = 226823;
-    public static final long CIRCUMFERENCE_MM_56 = 230593;
-
-    // num should be divided by 100
-    public static final long CIRCUMFERENCE_IN_100 = 211366;
-    public static final long CIRCUMFERENCE_IN_125 = 215356;
-    public static final long CIRCUMFERENCE_IN_150 = 219346;
-    public static final long CIRCUMFERENCE_IN_175 = 223336;
-    public static final long CIRCUMFERENCE_IN_195 = 226509;
-    public static final long CIRCUMFERENCE_IN_200 = 227326;
-    public static final long CIRCUMFERENCE_IN_210 = 228922;
-    public static final long CIRCUMFERENCE_IN_2125 = 229336;
-    public static final long CIRCUMFERENCE_IN_220 = 230518;
-    public static final long CIRCUMFERENCE_IN_225 = 231315;
-    public static final long CIRCUMFERENCE_IN_230 = 232113;
-    public static final long CIRCUMFERENCE_IN_235 = 232911;
-    public static final long CIRCUMFERENCE_IN_240 = 233540;
+    public @interface TireCircumferenceIN {
+    }
 
 //    public enum TIRE_700C {
 //        MM_20 ("700C/20mm", (float) 2.07973),

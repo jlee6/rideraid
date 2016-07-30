@@ -31,8 +31,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
+@SuppressWarnings("WeakerAccess")
 public class Telemetry extends Fragment
         implements TimePresenter.View, TelemetryPresenter.View, PositionPresenter.View {
+    private final AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
     @BindView(R.id.tv_time_value)
     TextView tvTimer;
     @BindView(R.id.tv_cad_value)
@@ -41,13 +43,9 @@ public class Telemetry extends Fragment
     TextView tvSpeed;
     @BindView(R.id.tv_dist_value)
     TextView tvDistance;
-
-    Unbinder unbinder;
-
+    private Unbinder unbinder;
     private PresenterActions[] presenters;
     private SimpleDateFormat formatter;
-
-    AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
 
     @SuppressLint("SimpleDateFormat")
     public void onCreate(Bundle savedInstanceState) {
@@ -107,8 +105,9 @@ public class Telemetry extends Fragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_record:
+                long sessionId = System.currentTimeMillis();
                 for (PresenterActions p : presenters) {
-                    p.start();
+                    p.start(sessionId);
                 }
 
                 WindowsUtils.lockScreenDim(getActivity().getWindow(), true);

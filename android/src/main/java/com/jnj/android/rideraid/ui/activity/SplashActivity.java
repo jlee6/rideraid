@@ -10,19 +10,14 @@ import android.widget.ImageView;
 import com.jnj.android.rideraid.R;
 import com.jnj.android.rideraid.RiderAidApplication;
 import com.jnj.android.rideraid.ant.AntBikeDevice;
-import com.jnj.android.rideraid.ant.AntDevice;
-import com.jnj.android.rideraid.ant.AntGarminGSC10;
-import com.jnj.android.rideraid.ant.Tire;
 
 import java.io.IOException;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
 public class SplashActivity extends Activity {
-    AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
+    private final AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
 
     @BindView(R.id.iv_splash_image)
     ImageView ivSplash;

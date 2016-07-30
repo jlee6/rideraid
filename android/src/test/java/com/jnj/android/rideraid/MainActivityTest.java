@@ -2,7 +2,6 @@ package com.jnj.android.rideraid;
 
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.TextView;
 
 import com.jnj.android.rideraid.ui.activity.MainActivity;
 import com.jnj.android.rideraid.ui.fragment.Telemetry;
@@ -15,7 +14,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.support.v4.SupportFragmentTestUtil;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 23)

@@ -3,7 +3,6 @@ package com.jnj.android.rideraid.ant;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -12,7 +11,6 @@ import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc;
 import com.dsi.ant.plugins.antplus.pcc.defines.DeviceState;
 import com.dsi.ant.plugins.antplus.pcc.defines.EventFlag;
 import com.dsi.ant.plugins.antplus.pcc.defines.RequestAccessResult;
-import com.dsi.ant.plugins.antplus.pccbase.AntPluginPcc;
 import com.dsi.ant.plugins.antplus.pccbase.AntPlusBikeSpdCadCommonPcc;
 
 import java.math.BigDecimal;
@@ -20,7 +18,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 public class AntGarminGSC10 extends AntBikeDevice {
-    protected ArrayList<AntPlusBikeSpdCadCommonPcc> antPCC = new ArrayList<>();
+    private ArrayList<AntPlusBikeSpdCadCommonPcc> antPCC = new ArrayList<>();
 
     private boolean active;
 
@@ -70,56 +68,44 @@ public class AntGarminGSC10 extends AntBikeDevice {
                 activity,
                 activity.getApplicationContext(),
 
-                new AntPluginPcc.IPluginAccessResultReceiver<AntPlusBikeCadencePcc>() {
-                    //Handle the result, connecting to events on success or reporting failure to user.
-                    @Override
-                    public void onResultReceived(AntPlusBikeCadencePcc result,
-                                                 RequestAccessResult resultCode,
-                                                 DeviceState initialDeviceState) {
-                        String status = "";
-                        switch (resultCode) {
-                            case SUCCESS:
-                                antPCC.add(result);
+                (result, resultCode, initialDeviceState) -> {
+                    String status = "";
+                    switch (resultCode) {
+                        case SUCCESS:
+                            antPCC.add(result);
 
-                                subscribeCadenceEvent(result);
+                            subscribeCadenceEvent(result);
 
-                                activateCombinedSpeedSensor(activity.getApplicationContext(), result);
+                            activateCombinedSpeedSensor(activity.getApplicationContext(), result);
 
-                                active = true;
-                                eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ACTIVE, 0));
-                                break;
-                            case DEPENDENCY_NOT_INSTALLED:
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity.getApplicationContext());
-                                alertDialogBuilder.setTitle("Missing Dependency");
-                                alertDialogBuilder.setMessage("The required service\n\"" + AntPlusBikeCadencePcc.getMissingDependencyName() +
-                                        "\"\n was not found. You need to install the ANT+ Plugins service or you may need to update " +
-                                        "your existing version if you already have it. Do you want to launch the Play Store to get it?");
-                                alertDialogBuilder.setCancelable(true);
-                                alertDialogBuilder.setPositiveButton("Go to Store", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent startStore = null;
-                                        startStore = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" +
-                                                AntPlusBikeCadencePcc.getMissingDependencyPackageName()));
-                                        startStore.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            active = true;
+                            eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ACTIVE, 0));
+                            break;
+                        case DEPENDENCY_NOT_INSTALLED:
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity.getApplicationContext());
+                            alertDialogBuilder.setTitle("Missing Dependency");
+                            alertDialogBuilder.setMessage("The required service\n\"" + AntPlusBikeCadencePcc.getMissingDependencyName() +
+                                    "\"\n was not found. You need to install the ANT+ Plugins service or you may need to update " +
+                                    "your existing version if you already have it. Do you want to launch the Play Store to get it?");
+                            alertDialogBuilder.setCancelable(true);
+                            alertDialogBuilder.setPositiveButton("Go to Store", (dialog, which) -> {
+                                Intent startStore = null;
+                                startStore = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" +
+                                        AntPlusBikeCadencePcc.getMissingDependencyPackageName()));
+                                startStore.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                                        activity.startActivity(startStore);
-                                    }
-                                });
-                                alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
+                                activity.startActivity(startStore);
+                            });
+                            alertDialogBuilder.setNegativeButton("Cancel", (dialog, which) -> {
+                                dialog.dismiss();
+                            });
 
-                                final AlertDialog waitDialog = alertDialogBuilder.create();
-                                waitDialog.show();
-                                break;
-                            default:
-                                eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ERROR, resultCode.getIntValue()));
-                                break;
-                        }
+                            final AlertDialog waitDialog = alertDialogBuilder.create();
+                            waitDialog.show();
+                            break;
+                        default:
+                            eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ERROR, resultCode.getIntValue()));
+                            break;
                     }
                 },
 
@@ -132,14 +118,7 @@ public class AntGarminGSC10 extends AntBikeDevice {
 
     private void subscribeCadenceEvent(final AntPlusBikeSpdCadCommonPcc pcc) {
         ((AntPlusBikeCadencePcc) pcc).subscribeCalculatedCadenceEvent(
-                new AntPlusBikeCadencePcc.ICalculatedCadenceReceiver() {
-                    @Override
-                    public void onNewCalculatedCadence(final long estTimestamp,
-                                                       final EnumSet<EventFlag> eventFlags,
-                                                       final BigDecimal calculatedCadence) {
-                        eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_TYPE_CADENCE, calculatedCadence.longValue()));
-                    }
-                });
+                (estTimestamp, eventFlags, calculatedCadence) -> eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_TYPE_CADENCE, calculatedCadence.longValue())));
     }
 
     private void activateCombinedSpeedSensor(Context context, final AntPlusBikeSpdCadCommonPcc pcc) {
@@ -148,42 +127,33 @@ public class AntGarminGSC10 extends AntBikeDevice {
         }
 
         AntPlusBikeSpeedDistancePcc.requestAccess(context, pcc.getAntDeviceNumber(), 0, true,
-                new AntPluginPcc.IPluginAccessResultReceiver<AntPlusBikeSpeedDistancePcc>() {
-                    //Handle the result, connecting to events on success or reporting failure to user.
-                    @Override
-                    public void onResultReceived(AntPlusBikeSpeedDistancePcc result,
-                                                 RequestAccessResult resultCode,
-                                                 DeviceState initialDeviceStateCode) {
-                        switch (resultCode) {
-                            case SUCCESS:
-                                antPCC.add(result);
-                                result.subscribeCalculatedSpeedEvent(
-                                        new AntPlusBikeSpeedDistancePcc.CalculatedSpeedReceiver(bikeTireCircumference) {
-                                            @Override
-                                            public void onNewCalculatedSpeed(long estTimestamp,
-                                                                             EnumSet<EventFlag> eventFlags,
-                                                                             final BigDecimal calculatedSpeed) {
-                                                // units m/s
-                                                eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_TYPE_SPEED, calculatedSpeed.longValue()));
-                                            }
-                                        });
+                (result, resultCode, initialDeviceStateCode) -> {
+                    switch (resultCode) {
+                        case SUCCESS:
+                            antPCC.add(result);
+                            result.subscribeCalculatedSpeedEvent(
+                                    new AntPlusBikeSpeedDistancePcc.CalculatedSpeedReceiver(bikeTireCircumference) {
+                                        @Override
+                                        public void onNewCalculatedSpeed(long estTimestamp,
+                                                                         EnumSet<EventFlag> eventFlags,
+                                                                         final BigDecimal calculatedSpeed) {
+                                            // units m/s
+                                            eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_TYPE_SPEED, calculatedSpeed.longValue()));
+                                        }
+                                    });
 
-                                eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ACTIVE, 0));
-                                break;
-                            default:
-                                eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ERROR, resultCode.getIntValue()));
-                                break;
-                        }
+                            eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ACTIVE, 0));
+                            break;
+                        default:
+                            eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ERROR, resultCode.getIntValue()));
+                            break;
                     }
                 },
 
                 //Receives state changes and shows it on the status display line
-                new AntPluginPcc.IDeviceStateChangeReceiver() {
-                    @Override
-                    public void onDeviceStateChange(final DeviceState newDeviceState) {
-                        if (newDeviceState == DeviceState.DEAD) {
-                            eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ERROR, DeviceState.DEAD.getIntValue()));
-                        }
+                newDeviceState -> {
+                    if (newDeviceState == DeviceState.DEAD) {
+                        eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ERROR, DeviceState.DEAD.getIntValue()));
                     }
                 }
         );

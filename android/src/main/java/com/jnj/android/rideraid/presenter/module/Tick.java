@@ -10,8 +10,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class Tick implements TimePresenter {
-    private TimePresenter.View view;
-    Subscriber<Long> tickHandler;
+    private final TimePresenter.View view;
+    private Subscriber<Long> tickHandler;
 
     public Tick(TimePresenter.View view) {
         this.view = view;
@@ -23,7 +23,7 @@ public class Tick implements TimePresenter {
     }
 
     @Override
-    public void start() {
+    public void start(long sessionId) {
         if (tickHandler != null) {
             return;
         }

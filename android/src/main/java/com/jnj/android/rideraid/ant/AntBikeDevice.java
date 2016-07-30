@@ -8,15 +8,18 @@ import rx.Observable;
 import rx.Subscriber;
 
 public abstract class AntBikeDevice implements AntDevice {
+    protected final BigDecimal bikeTireCircumference;
+    private final List<Subscriber<BikeEvent>> subscriptions;
     protected int antDeviceType;
-    protected BigDecimal bikeTireCircumference;
-
     protected EventHandler eventHandler;
-    protected List<Subscriber<BikeEvent>> subscriptions;
 
     public AntBikeDevice(@Tire.TireCircumferenceMM long tire) {
         bikeTireCircumference = new BigDecimal(tire);
         subscriptions = new LinkedList<>();
+    }
+
+    public static BikeEvent createEvent(int type, long value) {
+        return new BikeEvent(type, value);
     }
 
     public Observable<BikeEvent> getBikeEventObservable() {
@@ -33,8 +36,8 @@ public abstract class AntBikeDevice implements AntDevice {
     }
 
     public static class BikeEvent {
-        private int type;
-        private long value;
+        private final int type;
+        private final long value;
 
         private BikeEvent(int type, long value) {
             this.type = type;
@@ -48,9 +51,5 @@ public abstract class AntBikeDevice implements AntDevice {
         public long getValue() {
             return value;
         }
-    }
-
-    public static BikeEvent createEvent(int type, long value) {
-        return new BikeEvent(type, value);
     }
 }

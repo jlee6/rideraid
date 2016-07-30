@@ -2,7 +2,6 @@ package com.jnj.android.rideraid.presenter.module;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
@@ -21,88 +20,14 @@ import rx.Observable;
 
 @SuppressWarnings("MissingPermission")
 public class Position implements PositionPresenter {
-    private Context context;
-
+    private final Context context;
+    private final int permission;
+    private final LocationManager locationManager;
     private boolean active;
-    private int permission;
-
     private Location location;
-    private LocationManager locationManager;
-
     private PositionUpdateListener listener;
     private PositionPresenter.View view;
-
-    public Position(Context context, PositionPresenter.View view) {
-        this.context = context;
-
-        permission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
-
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public void start() {
-        initializeLocationService();
-    }
-
-    @Override
-    public void stop() {
-        dispose();
-    }
-
-    public Observable<Location> onPositionChanged() {
-        return Observable.create(subscriber -> listener = subscriber::onNext);
-    }
-
-    public void dispose() {
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        locationManager.removeUpdates(locationListener);
-    }
-
-    private void initializeLocationService() {
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (location == null) {
-            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        }
-
-        String locationProvider = locationManager.getBestProvider(createFineCriteria(), true);
-
-        if (!TextUtils.isEmpty(locationProvider) && !locationProvider.equals("passive")) {
-            locationManager.requestLocationUpdates(locationProvider, 0, 0f, locationListener);
-            return;
-        }
-
-        AlertDialog alert = new AlertDialog.Builder(context)
-                .setTitle("Enable Location Provider")
-                .setMessage("Unable to find location provider\r\nWould like to enable location settings now?")
-                .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent settings = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(settings);
-                    }
-                })
-                .setNegativeButton("Leave", null)
-                .create();
-
-        alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        alert.show();
-    }
-
-    private LocationListener locationListener = new LocationListener() {
+    private final LocationListener locationListener = new LocationListener() {
         double distance;
         Location last;
 
@@ -148,11 +73,15 @@ public class Position implements PositionPresenter {
         }
     };
 
-    private interface PositionUpdateListener {
-        void onPositionChanged(Location location);
+    public Position(Context context, PositionPresenter.View view) {
+        this.context = context;
+
+        permission = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
-    public static Criteria createFineCriteria() {
+    private static Criteria createFineCriteria() {
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setAltitudeRequired(true);
@@ -163,7 +92,70 @@ public class Position implements PositionPresenter {
         return criteria;
     }
 
-    public static double calculateDistance(Location from, Location to) {
+    private static double calculateDistance(Location from, Location to) {
         return (from != null) ? to.distanceTo(from) : 0;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void start(long sessionId) {
+        initializeLocationService(sessionId);
+    }
+
+    @Override
+    public void stop() {
+        dispose();
+    }
+
+    public Observable<Location> onPositionChanged() {
+        return Observable.create(subscriber -> listener = subscriber::onNext);
+    }
+
+    public void dispose() {
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        locationManager.removeUpdates(locationListener);
+    }
+
+    private void initializeLocationService(final long sessionId) {
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location == null) {
+            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        }
+
+        String locationProvider = locationManager.getBestProvider(createFineCriteria(), true);
+
+        if (!TextUtils.isEmpty(locationProvider) && !locationProvider.equals("passive")) {
+            locationManager.requestLocationUpdates(locationProvider, 0, 0f, locationListener);
+            return;
+        }
+
+        AlertDialog alert = new AlertDialog.Builder(context)
+                .setTitle("Enable Location Provider")
+                .setMessage("Unable to find location provider\r\nWould like to enable location settings now?")
+                .setPositiveButton("Enable", (dialog, which) -> {
+                    Intent settings = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(settings);
+                })
+                .setNegativeButton("Leave", null)
+                .create();
+
+        alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alert.show();
+    }
+
+    private interface PositionUpdateListener {
+        void onPositionChanged(Location location);
     }
 }
