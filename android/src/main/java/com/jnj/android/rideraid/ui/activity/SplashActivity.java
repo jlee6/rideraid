@@ -14,23 +14,21 @@ import com.jnj.android.rideraid.ant.AntBikeDevice;
 import java.io.IOException;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import rx.android.schedulers.AndroidSchedulers;
 
 public class SplashActivity extends Activity {
     private final AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
 
     @BindView(R.id.iv_splash_image)
-    ImageView ivSplash;
+    ImageView splash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // TODO: investigate this doesn't happen?
-//        ButterKnife.bind(this);
-
-        ImageView image = (ImageView) findViewById(R.id.iv_splash_image);
+        ButterKnife.bind(this);
 
         try {
             String files[] = getAssets().list("splash");
@@ -38,7 +36,7 @@ public class SplashActivity extends Activity {
                 Log.wtf("Splash", "File: " + file);
             }
 
-            image.setImageDrawable(
+            splash.setImageDrawable(
                     Drawable.createFromStream(getAssets().open("splash/cycle_illustration_01.png"), null));
         } catch (IOException ioex) {
             Log.e("SplashScreen", "Can't load splash image", ioex);

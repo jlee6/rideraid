@@ -35,6 +35,7 @@ import butterknife.Unbinder;
 public class Telemetry extends Fragment
         implements TimePresenter.View, TelemetryPresenter.View, PositionPresenter.View {
     private final AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
+
     @BindView(R.id.tv_time_value)
     TextView tvTimer;
     @BindView(R.id.tv_cad_value)
@@ -70,13 +71,7 @@ public class Telemetry extends Fragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.telemetry_fragment, container, false);
 
-        // TODO: investigate butterknife doesn't take effect
-        //unbinder = ButterKnife.bind(this, view);
-
-        tvTimer = (TextView) view.findViewById(R.id.tv_time_value);
-        tvCadence = (TextView) view.findViewById(R.id.tv_cad_value);
-        tvSpeed = (TextView) view.findViewById(R.id.tv_spd_value);
-        tvDistance = (TextView) view.findViewById(R.id.tv_dist_value);
+        unbinder = ButterKnife.bind(this, view);
 
         return view;
     }
