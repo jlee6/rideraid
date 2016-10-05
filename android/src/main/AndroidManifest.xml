@@ -17,6 +17,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="vnd.google.fitness.TRACK"/>
+                <data android:mimeType="vnd.google.fitness.activity/biking"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.activity.MainActivity"
