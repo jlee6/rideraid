@@ -31,6 +31,7 @@ public class SplashActivity extends Activity {
         ButterKnife.bind(this);
 
         try {
+            // TODO: splash images
             String files[] = getAssets().list("splash");
             for (String file : files) {
                 Log.wtf("Splash", "File: " + file);
