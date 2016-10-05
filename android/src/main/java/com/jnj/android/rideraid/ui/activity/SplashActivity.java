@@ -25,17 +25,14 @@ public class SplashActivity extends Activity {
     AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
 
     @BindView(R.id.iv_splash_image)
-    ImageView ivSplash;
+    ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // TODO: investigate this doesn't happen?
-//        ButterKnife.bind(this);
-
-        ImageView image = (ImageView) findViewById(R.id.iv_splash_image);
+        ButterKnife.bind(this);
 
         try {
             String files[] = getAssets().list("splash");
@@ -43,7 +40,7 @@ public class SplashActivity extends Activity {
                 Log.wtf("Splash", "File: " + file);
             }
 
-            image.setImageDrawable(
+            imageView.setImageDrawable(
                     Drawable.createFromStream(getAssets().open("splash/cycle_illustration_01.png"), null));
         } catch (IOException ioex) {
             Log.e("SplashScreen", "Can't load splash image", ioex);

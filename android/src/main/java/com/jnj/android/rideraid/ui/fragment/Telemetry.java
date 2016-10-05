@@ -72,13 +72,7 @@ public class Telemetry extends Fragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.telemetry_fragment, container, false);
 
-        // TODO: investigate butterknife doesn't take effect
-        //unbinder = ButterKnife.bind(this, view);
-
-        tvTimer = (TextView) view.findViewById(R.id.tv_time_value);
-        tvCadence = (TextView) view.findViewById(R.id.tv_cad_value);
-        tvSpeed = (TextView) view.findViewById(R.id.tv_spd_value);
-        tvDistance = (TextView) view.findViewById(R.id.tv_dist_value);
+        unbinder = ButterKnife.bind(this, view);
 
         return view;
     }
