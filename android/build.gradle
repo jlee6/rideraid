@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 24
@@ -29,15 +30,26 @@ android {
 dependencies {
     compile files('libs/antpluginlib.jar')
 
-    compile 'com.android.support:support-v13:24.1.1'
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.android.support:design:24.1.1'
+    compile 'com.android.support:support-v13:24.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
 
+    // ButterKnife
     compile 'com.jakewharton:butterknife:8.2.1'
+    apt 'com.jakewharton:butterknife-compiler:8.2.1'
+
+    // RxJava
     compile 'io.reactivex:rxandroid:1.2.0'
     compile 'io.reactivex:rxjava:1.1.5'
 
+    // Test Common
     testCompile 'junit:junit:4.12'
+
+    // Test Android Instrumentation
+    androidTestCompile 'com.android.support:support-annotations:24.2.1'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+
+    // Test Robolectric
     testCompile 'org.robolectric:robolectric:3.1.1'
     testCompile 'org.robolectric:shadows-support-v4:3.1.1'
     testCompile 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
