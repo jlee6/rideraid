@@ -50,19 +50,19 @@ public class SplashActivity extends Activity {
             throw new IllegalStateException("Required device is not found");
         }
 
-        if (device.isActive()) {
+//        if (device.isActive()) {
             startTelemetry();
-            return;
-        }
-
-        device.getBikeEventObservable()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(event -> {
-                    if (event.getType() == AntBikeDevice.ANT_DEVICE_ACTIVE) {
-                            startTelemetry();
-                    }
-                }, throwable -> Log.e("Splash", "Can't start application"));
-        device.activate(this);
+//            return;
+//        }
+//
+//        device.getBikeEventObservable()
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(event -> {
+//                    if (event.getType() == AntBikeDevice.ANT_DEVICE_ACTIVE) {
+//                            startTelemetry();
+//                    }
+//                }, throwable -> Log.e("Splash", "Can't start application"));
+//        device.activate(this);
     }
 
     private void startTelemetry() {

@@ -20,4 +20,12 @@
         android:icon="@drawable/ic_stop"
         android:visible="false"/>
 
+    <item
+        android:id="@+id/action_preferences"
+        android:title="@string/preferences"
+        android:orderInCategory="100"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:visible="true"/>
+
 </menu>
