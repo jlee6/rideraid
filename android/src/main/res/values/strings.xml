@@ -20,15 +20,17 @@
     <string name="default_elapsed_time">00:00:00</string>
 
     <string name="imperial_units">Imperial (Miles)</string>
-    <string name="unit_mile">miles</string>
-    <string name="unit_speed_mph">mph</string>
+    <string name="unit_mile">Miles</string>
+    <string name="unit_speed_mph">MPH</string>
 
     <string name="metric_units">Metric (Km)</string>
-    <string name="unit_km">km</string>
-    <string name="unit_speed_kmh">kmh</string>
+    <string name="unit_km">Km</string>
+    <string name="unit_speed_kmh">KmH</string>
 
     <!-- Preferences -->
     <string name="preferences">Preferences</string>
+
+    <string name="preference_category_general_settings">General Settings</string>
 
     <string name="orientation_lock_key">orientation</string>
     <string name="orientation_lock_title">Lock Orientation</string>

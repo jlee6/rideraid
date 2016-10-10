@@ -7,8 +7,8 @@ import com.jnj.android.rideraid.R;
 
 public class MainPreferenceActivity extends PreferenceActivity {
     @Override
-    protected void onCreate(Bundle savedInsatanceState) {
-        super.onCreate(savedInsatanceState);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new PreferenceFragment()).commit();
     }
 
