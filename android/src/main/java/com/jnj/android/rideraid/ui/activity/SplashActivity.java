@@ -46,23 +46,19 @@ public class SplashActivity extends Activity {
             Log.e("SplashScreen", "Can't load splash image", ioex);
         }
 
-        if (device == null) {
-            throw new IllegalStateException("Required device is not found");
+        if (device == null || device.isActive()) {
+            startTelemetry();
+            return;
         }
 
-//        if (device.isActive()) {
-            startTelemetry();
-//            return;
-//        }
-//
-//        device.getBikeEventObservable()
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(event -> {
-//                    if (event.getType() == AntBikeDevice.ANT_DEVICE_ACTIVE) {
-//                            startTelemetry();
-//                    }
-//                }, throwable -> Log.e("Splash", "Can't start application"));
-//        device.activate(this);
+        device.getBikeEventObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> {
+                    if (event.getType() == AntBikeDevice.ANT_DEVICE_ACTIVE) {
+                            startTelemetry();
+                    }
+                }, throwable -> Log.e("Splash", "Can't start application"));
+        device.activate(this);
     }
 
     private void startTelemetry() {
