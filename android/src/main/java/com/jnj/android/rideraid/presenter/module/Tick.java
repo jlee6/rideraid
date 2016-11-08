@@ -4,14 +4,13 @@ import com.jnj.android.rideraid.presenter.TimePresenter;
 
 import java.util.concurrent.TimeUnit;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class Tick implements TimePresenter {
     private TimePresenter.View view;
-    Subscriber<Long> tickHandler;
+    private Disposable holder;
 
     public Tick(TimePresenter.View view) {
         this.view = view;
@@ -19,48 +18,26 @@ public class Tick implements TimePresenter {
 
     @Override
     public boolean isActive() {
-        return tickHandler != null;
+        return holder != null && !holder.isDisposed();
     }
 
     @Override
     public void start() {
-        if (tickHandler != null) {
+        if (holder != null) {
             return;
         }
 
-        setupTickHandler();
-
-        Observable.interval(1000, TimeUnit.MILLISECONDS, Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(tickHandler);
+        Observable<Long> obs = Observable.interval(1000, TimeUnit.MILLISECONDS, Schedulers.newThread());
+        holder = obs.subscribe(time -> view.updateTime(time + 1));
     }
 
     @Override
     public void stop() {
-        if (tickHandler == null) {
+        if (holder == null) {
             return;
         }
 
-        tickHandler.onCompleted();
-        tickHandler.unsubscribe();
-        tickHandler = null;
-    }
-
-    private void setupTickHandler() {
-        tickHandler = new Subscriber<Long>() {
-            @Override
-            public void onCompleted() {
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                view.updateTime(0);
-            }
-
-            @Override
-            public void onNext(Long time) {
-                view.updateTime(time);
-            }
-        };
+        holder.dispose();
+        holder = null;
     }
 }

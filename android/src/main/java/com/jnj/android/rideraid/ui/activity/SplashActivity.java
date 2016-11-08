@@ -10,16 +10,12 @@ import android.widget.ImageView;
 import com.jnj.android.rideraid.R;
 import com.jnj.android.rideraid.RiderAidApplication;
 import com.jnj.android.rideraid.ant.AntBikeDevice;
-import com.jnj.android.rideraid.ant.AntDevice;
-import com.jnj.android.rideraid.ant.AntGarminGSC10;
-import com.jnj.android.rideraid.ant.Tire;
 
 import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class SplashActivity extends Activity {
     AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;

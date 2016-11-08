@@ -17,7 +17,7 @@ import android.view.WindowManager;
 
 import com.jnj.android.rideraid.presenter.PositionPresenter;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 @SuppressWarnings("MissingPermission")
 public class Position implements PositionPresenter {
