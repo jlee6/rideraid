@@ -1,18 +1,17 @@
 package com.jnj.android.rideraid.presenter.module;
 
-import android.util.Log;
-
 import com.jnj.android.rideraid.ant.AntBikeDevice;
 import com.jnj.android.rideraid.ant.AntDevice;
 import com.jnj.android.rideraid.presenter.TelemetryPresenter;
 
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 public class TeleSensor implements TelemetryPresenter {
-    private Subscriber<AntBikeDevice.BikeEvent> eventSubscriber;
     private AntBikeDevice device;
     private TelemetryPresenter.View view;
+
+    private Disposable holder;
 
     public TeleSensor(TelemetryPresenter.View view, AntBikeDevice device) {
         this.view = view;
@@ -21,7 +20,7 @@ public class TeleSensor implements TelemetryPresenter {
 
     @Override
     public boolean isActive() {
-        return eventSubscriber != null;
+        return holder != null && !holder.isDisposed();
     }
 
     @Override
@@ -35,40 +34,30 @@ public class TeleSensor implements TelemetryPresenter {
 
     @Override
     public void stop() {
-        if (eventSubscriber == null || !eventSubscriber.isUnsubscribed()) {
+        if (holder == null || !holder.isDisposed()) {
             return;
         }
 
-        eventSubscriber.unsubscribe();
-        eventSubscriber = null;
+        holder.dispose();
+        holder = null;
     }
 
     private void initializeBikeEventSubscriber() {
-        eventSubscriber = new Subscriber<AntBikeDevice.BikeEvent>() {
-            @Override
-            public void onCompleted() {
-            }
+        if (holder != null) {
+            return;
+        }
 
-            @Override
-            public void onError(Throwable e) {
-                Log.e("TeleSensor", "Unable to process bike event", e);
-            }
-
-            @Override
-            public void onNext(AntBikeDevice.BikeEvent bikeEvent) {
-                switch (bikeEvent.getType()) {
-                    case AntBikeDevice.ANT_DEVICE_TYPE_SPEED:
-                        view.updateSpeed(bikeEvent.getValue());
-                        break;
-                    case AntDevice.ANT_DEVICE_TYPE_CADENCE:
-                        view.updateCadence(bikeEvent.getValue());
-                        break;
-                }
-            }
-        };
-
-        device.getBikeEventObservable()
+        holder = device.getBikeEventObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(eventSubscriber);
+                .subscribe(bikeEvent -> {
+                    switch (bikeEvent.getType()) {
+                        case AntBikeDevice.ANT_DEVICE_TYPE_SPEED:
+                            view.updateSpeed(bikeEvent.getValue());
+                            break;
+                        case AntDevice.ANT_DEVICE_TYPE_CADENCE:
+                            view.updateCadence(bikeEvent.getValue());
+                            break;
+                    }
+                });
     }
 }

@@ -1,8 +1,12 @@
 package com.jnj.android.rideraid.ui.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +25,7 @@ import com.jnj.android.rideraid.presenter.TimePresenter;
 import com.jnj.android.rideraid.presenter.module.Position;
 import com.jnj.android.rideraid.presenter.module.TeleSensor;
 import com.jnj.android.rideraid.presenter.module.Tick;
+import com.jnj.android.rideraid.util.UnitUtils;
 import com.jnj.android.rideraid.util.WindowsUtils;
 
 import java.text.SimpleDateFormat;
@@ -42,6 +47,11 @@ public class Telemetry extends Fragment
     @BindView(R.id.tv_dist_value)
     TextView tvDistance;
 
+    @BindView(R.id.tv_dist_unit)
+    TextView tvDistanceUnit;
+    @BindView(R.id.tv_spd_unit)
+    TextView tvSpeedUnit;
+
     Unbinder unbinder;
 
     private PresenterActions[] presenters;
@@ -49,11 +59,11 @@ public class Telemetry extends Fragment
 
     AntBikeDevice device = (AntBikeDevice) RiderAidApplication.ant;
 
+    private int unit;
+
     @SuppressLint("SimpleDateFormat")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        ButterKnife.setDebug(true);
 
         // Suppressing simple data format since the locale doesn't matter
         formatter = new SimpleDateFormat("HH:mm:ss");
@@ -64,7 +74,16 @@ public class Telemetry extends Fragment
                 new TeleSensor(this, device),
                 new Position(getContext(), this)};
 
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        Log.d(getClass().getSimpleName(), "Register shared preference listener");
+        pref.registerOnSharedPreferenceChangeListener(listener);
+
+        String str = pref.getString(getString(R.string.unit_type_key), getString(R.string.unit_type_default));
+        unit = str.equals(getString(R.string.unit_speed_mph)) ? R.string.unit_speed_mph : R.string.unit_speed_kmh;
+
         setHasOptionsMenu(true);
+        setRetainInstance(true);
     }
 
     @Override
@@ -73,6 +92,7 @@ public class Telemetry extends Fragment
         View view = inflater.inflate(R.layout.telemetry_fragment, container, false);
 
         unbinder = ButterKnife.bind(this, view);
+        setDisplayUnits(unit);
 
         return view;
     }
@@ -84,6 +104,15 @@ public class Telemetry extends Fragment
         if (unbinder != null) {
             unbinder.unbind();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Log.d(getClass().getSimpleName(), "Unregister shared preference listener");
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .unregisterOnSharedPreferenceChangeListener(listener);
     }
 
     @Override
@@ -133,11 +162,30 @@ public class Telemetry extends Fragment
 
     @Override
     public void updateSpeed(long spd) {
-        tvSpeed.setText(String.valueOf(spd));
+        tvSpeed.setText(String.valueOf(UnitUtils.convertCalcSpeed(spd, unit)));
     }
 
     @Override
     public void updateDistance(double distance) {
-        tvDistance.setText(String.valueOf(tvDistance));
+        tvDistance.setText(String.valueOf(UnitUtils.convertDistance(distance, unit)));
     }
+
+    private void setDisplayUnits(int selection) {
+        if (selection == R.string.unit_speed_mph) {
+            tvDistanceUnit.setText(getString(R.string.unit_mile));
+            tvSpeedUnit.setText(getString(R.string.unit_speed_mph));
+            return;
+        }
+
+        tvDistanceUnit.setText(getString(R.string.unit_km));
+        tvSpeedUnit.setText(getString(R.string.unit_speed_kmh));
+    }
+
+    SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, key) -> {
+        if (key.equals(getString(R.string.unit_type_key))) {
+            String str = sharedPreferences.getString(getString(R.string.unit_type_key), getString(R.string.unit_type_default));
+            unit = str.equals(getString(R.string.unit_speed_mph)) ? R.string.unit_speed_mph : R.string.unit_speed_kmh;
+            setDisplayUnits(unit);
+        }
+    };
 }

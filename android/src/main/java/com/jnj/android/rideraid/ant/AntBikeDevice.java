@@ -1,11 +1,12 @@
 package com.jnj.android.rideraid.ant;
 
+import org.reactivestreams.Subscriber;
+
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Observable;
 
 public abstract class AntBikeDevice implements AntDevice {
     protected int antDeviceType;
@@ -50,7 +51,7 @@ public abstract class AntBikeDevice implements AntDevice {
         }
     }
 
-    public static BikeEvent createEvent(int type, long value) {
+    static BikeEvent createEvent(int type, long value) {
         return new BikeEvent(type, value);
     }
 }
