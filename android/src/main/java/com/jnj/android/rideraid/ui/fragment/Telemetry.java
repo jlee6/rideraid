@@ -1,7 +1,7 @@
 package com.jnj.android.rideraid.ui.fragment;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,6 +25,7 @@ import com.jnj.android.rideraid.presenter.TimePresenter;
 import com.jnj.android.rideraid.presenter.module.Position;
 import com.jnj.android.rideraid.presenter.module.TeleSensor;
 import com.jnj.android.rideraid.presenter.module.Tick;
+import com.jnj.android.rideraid.util.Notifications;
 import com.jnj.android.rideraid.util.UnitUtils;
 import com.jnj.android.rideraid.util.WindowsUtils;
 
@@ -134,8 +135,11 @@ public class Telemetry extends Fragment
                     p.start();
                 }
 
-                WindowsUtils.lockScreenDim(getActivity().getWindow(), true);
-                getActivity().invalidateOptionsMenu();
+                Activity activity = getActivity();
+                WindowsUtils.lockScreenDim(activity.getWindow(), true);
+                activity.invalidateOptionsMenu();
+
+                Notifications.showNotification(activity);
                 return true;
             case R.id.action_stop:
                 for (PresenterActions p : presenters) {
@@ -144,6 +148,8 @@ public class Telemetry extends Fragment
 
                 WindowsUtils.lockScreenDim(getActivity().getWindow(), false);
                 getActivity().invalidateOptionsMenu();
+
+                Notifications.hideNotification(getContext());
                 return true;
         }
 

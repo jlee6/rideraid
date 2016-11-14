@@ -2,6 +2,8 @@ package com.jnj.android.rideraid.ant;
 
 import android.app.Activity;
 
+import io.reactivex.Observable;
+
 public interface AntDevice {
     int ANT_DEVICE_ACTIVE = 0xFF;
     int ANT_DEVICE_ERROR = -1;
@@ -13,5 +15,5 @@ public interface AntDevice {
     void release();
 
     boolean isActive();
-    void activate(final Activity activity);
+    Observable<Boolean> activate(final Activity activity);
 }

@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.jnj.android.rideraid.R;
 import com.jnj.android.rideraid.RiderAidApplication;
@@ -15,6 +16,7 @@ import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class SplashActivity extends Activity {
@@ -47,14 +49,14 @@ public class SplashActivity extends Activity {
             return;
         }
 
-        device.getBikeEventObservable()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(event -> {
-                    if (event.getType() == AntBikeDevice.ANT_DEVICE_ACTIVE) {
-                            startTelemetry();
+        device.activate(this)
+                .subscribe(active -> {
+                    if (active) {
+                        startTelemetry();
+                        return;
                     }
-                }, throwable -> Log.e("Splash", "Can't start application"));
-        device.activate(this);
+                    Toast.makeText(this, "Error while activating an ANT+ device", Toast.LENGTH_LONG);
+                });
     }
 
     private void startTelemetry() {

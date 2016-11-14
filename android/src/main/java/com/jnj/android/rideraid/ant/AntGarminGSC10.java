@@ -2,10 +2,13 @@ package com.jnj.android.rideraid.ant;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.ContextThemeWrapper;
+import android.widget.Toast;
 
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeCadencePcc;
 import com.dsi.ant.plugins.antplus.pcc.AntPlusBikeSpeedDistancePcc;
@@ -18,6 +21,9 @@ import com.dsi.ant.plugins.antplus.pccbase.AntPlusBikeSpdCadCommonPcc;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Objects;
+
+import io.reactivex.Observable;
 
 public class AntGarminGSC10 extends AntBikeDevice {
     protected ArrayList<AntPlusBikeSpdCadCommonPcc> antPCC = new ArrayList<>();
@@ -65,7 +71,14 @@ public class AntGarminGSC10 extends AntBikeDevice {
         return "Unknown result: " + returnCode;
     }
 
-    public void activate(final Activity activity) {
+    public Observable<Boolean> activate(final Activity activity) {
+        return Observable.defer(() -> {
+            activateDevice(activity);
+            return Observable.just(active);
+        });
+    }
+
+    private void activateDevice(final Activity activity) {
         AntPlusBikeCadencePcc.requestAccess(
                 activity,
                 activity.getApplicationContext(),
@@ -89,7 +102,8 @@ public class AntGarminGSC10 extends AntBikeDevice {
                                 eventHandler.onEvent(createEvent(AntDevice.ANT_DEVICE_ACTIVE, 0));
                                 break;
                             case DEPENDENCY_NOT_INSTALLED:
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity.getApplicationContext());
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+//                                        new ContextThemeWrapper(activity, android.support.v7.appcompat.R.style.Base_ThemeOverlay_AppCompat_Dark));
                                 alertDialogBuilder.setTitle("Missing Dependency");
                                 alertDialogBuilder.setMessage("The required service\n\"" + AntPlusBikeCadencePcc.getMissingDependencyName() +
                                         "\"\n was not found. You need to install the ANT+ Plugins service or you may need to update " +
@@ -98,12 +112,15 @@ public class AntGarminGSC10 extends AntBikeDevice {
                                 alertDialogBuilder.setPositiveButton("Go to Store", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        Intent startStore = null;
-                                        startStore = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" +
+                                        Intent startStore = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" +
                                                 AntPlusBikeCadencePcc.getMissingDependencyPackageName()));
                                         startStore.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                                        activity.startActivity(startStore);
+                                        try {
+                                            activity.startActivity(startStore);
+                                        } catch (ActivityNotFoundException ex) {
+                                            Toast.makeText(activity, "Unable to find google play store", Toast.LENGTH_LONG);
+                                        }
                                     }
                                 });
                                 alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
