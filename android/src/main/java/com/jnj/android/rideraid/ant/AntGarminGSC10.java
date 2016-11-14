@@ -103,7 +103,6 @@ public class AntGarminGSC10 extends AntBikeDevice {
                                 break;
                             case DEPENDENCY_NOT_INSTALLED:
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-//                                        new ContextThemeWrapper(activity, android.support.v7.appcompat.R.style.Base_ThemeOverlay_AppCompat_Dark));
                                 alertDialogBuilder.setTitle("Missing Dependency");
                                 alertDialogBuilder.setMessage("The required service\n\"" + AntPlusBikeCadencePcc.getMissingDependencyName() +
                                         "\"\n was not found. You need to install the ANT+ Plugins service or you may need to update " +
